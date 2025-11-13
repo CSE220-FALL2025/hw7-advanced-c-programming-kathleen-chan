@@ -1,6 +1,11 @@
 #include "hw7.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 
 bst_sf* insert_bst_sf(matrix_sf *mat, bst_sf *root) {
+    
     return NULL;
 }
 
@@ -12,15 +17,69 @@ void free_bst_sf(bst_sf *root) {
 }
 
 matrix_sf* add_mats_sf(const matrix_sf *mat1, const matrix_sf *mat2) {
-    return NULL;
+    if(mat1 == NULL || mat2 == NULL)
+        return NULL;
+    if(mat1->num_rows != mat2->num_rows || mat1->num_cols != mat2->num_cols)
+        return NULL;
+    matrix_sf *sum = malloc(sizeof(matrix_sf) + (mat1->num_rows) * (mat1->num_cols) * sizeof(int));
+    if(sum == NULL)
+        return NULL;
+
+    sum->name = '?';
+    sum->num_rows = mat1->num_rows;
+    sum->num_cols = mat1->num_cols;
+
+    for(unsigned int i=0; i<mat1->num_rows; i++){
+        for(unsigned int j=0; j<mat1->num_cols; j++){
+            sum->values[i*mat1->num_cols + j] = mat1->values[i*mat1->num_cols + j] + mat2->values[i*mat1->num_cols + j];
+        }
+    }
+    return sum;
 }
 
 matrix_sf* mult_mats_sf(const matrix_sf *mat1, const matrix_sf *mat2) {
-   return NULL;
+    if(mat1 == NULL || mat2 == NULL)
+        return NULL;
+    if(mat1->num_cols != mat2->num_rows)
+        return NULL;
+    matrix_sf *product = malloc(sizeof(matrix_sf) + (mat1->num_rows) * (mat2->num_cols) * sizeof(int));
+    if(product == NULL)
+        return NULL;
+        
+    product ->name = '?';
+    product->num_rows = mat1->num_rows;
+    product->num_cols = mat2->num_cols;
+
+    for(unsigned int i=0; i<mat1->num_rows; i++){
+        for(unsigned int j=0; j<mat2->num_cols; j++){
+            int sum = 0;
+            for(unsigned int k=0; k<mat1->num_cols; k++){
+                sum += mat1->values[i*mat1->num_cols+k] * mat2->values[k*mat2->num_cols+j];
+            }
+            product->values[i*mat2->num_cols+j] = sum;
+        }
+    }
+    return product;
 }
 
 matrix_sf* transpose_mat_sf(const matrix_sf *mat) {
-    return NULL;
+    if(mat == NULL)
+        return NULL;
+
+    matrix_sf *transpose = malloc(sizeof(matrix_sf) + (mat->num_rows) * (mat->num_cols) * sizeof(int));
+    if(transpose == NULL)
+        return NULL;
+
+    transpose->name = '?';
+    transpose->num_rows = mat->num_cols;
+    transpose->num_cols = mat->num_rows;
+
+    for(unsigned int i=0; i<mat->num_rows; i++){
+        for(unsigned int j=0; j<mat->num_cols; j++){
+            transpose->values[j*transpose->num_cols+i] = mat->values[i*mat->num_cols+j];
+        }
+    }
+    return transpose;    
 }
 
 matrix_sf* create_matrix_sf(char name, const char *expr) {
