@@ -45,7 +45,6 @@ matrix_sf* mult_mats_sf(const matrix_sf *mat1, const matrix_sf *mat2) {
     matrix_sf *product = malloc(sizeof(matrix_sf) + (mat1->num_rows) * (mat2->num_cols) * sizeof(int));
     if(product == NULL)
         return NULL;
-        
     product ->name = '?';
     product->num_rows = mat1->num_rows;
     product->num_cols = mat2->num_cols;
@@ -65,8 +64,7 @@ matrix_sf* mult_mats_sf(const matrix_sf *mat1, const matrix_sf *mat2) {
 matrix_sf* transpose_mat_sf(const matrix_sf *mat) {
     if(mat == NULL)
         return NULL;
-
-    matrix_sf *transpose = malloc(sizeof(matrix_sf) + (mat->num_rows) * (mat->num_cols) * sizeof(int));
+    matrix_sf *transpose = malloc(sizeof(matrix_sf) + (mat->num_cols) * (mat->num_rows) * sizeof(int));
     if(transpose == NULL)
         return NULL;
 
@@ -83,7 +81,52 @@ matrix_sf* transpose_mat_sf(const matrix_sf *mat) {
 }
 
 matrix_sf* create_matrix_sf(char name, const char *expr) {
-    return NULL;
+    if(expr == NULL)
+        return NULL;
+    unsigned int rows = 0, cols = 0;
+    if(sscanf(expr, "%u", &rows) != 1 || rows == 0)
+        return NULL;
+    while (*expr && !isspace(*expr))
+        expr++;
+    while (isspace(*expr))
+        expr++;
+    if(sscanf(expr, "%u", &cols) != 1 || cols == 0)
+        return NULL;
+    
+    const char *start = strchr(expr,'[');
+    const char *end = strchr(expr,']');
+    if(start == NULL || end == NULL || end<=start)
+        return NULL;
+
+    size_t length = end - start - 1;
+    char *content = malloc(length + 1);
+    if(content == NULL)
+        return NULL;
+    memcpy(content, start + 1, length);
+    content[length] = '\0';
+    
+    matrix_sf *create = malloc(sizeof(matrix_sf) + rows * cols * sizeof(int));
+    if(create == NULL){
+        free(content);
+        return NULL;
+    }
+
+    create->name = name;
+    create->num_rows = rows;
+    create->num_cols = cols;
+
+    unsigned int count = 0;
+    char *tok = strtok(content, ";");
+    while (tok){
+        create->values[count++] = atoi(tok);
+        tok = strtok(NULL, ";");
+    }
+    free(content);
+    if (count != rows * cols){
+        free(create);
+        return NULL;
+    }
+    return create;
 }
 
 char* infix2postfix_sf(char *infix) {
